@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: bluegreen-rollout
+  namespace: bluegreen-demo
+spec:
+  replicas: 2
+
+  revisionHistoryLimit: 2
+
+  selector:
+    matchLabels:
+      app: bluegreen-app
+
+  template:
+    metadata:
+      labels:
+        app: bluegreen-app
+    spec:
+      containers:
+        - name: node-app
+          image: anushkashukla003/node-app:latest
+          ports:
+            - containerPort: 3000
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+  strategy:
+    blueGreen:
+      activeService: active-service
+      previewService: preview-service
+
+      autoPromotionEnabled: false

@@ -3,18 +3,26 @@ kind: Ingress
 metadata:
   name: bluegreen-ingress
   namespace: bluegreen-demo
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+
 spec:
   ingressClassName: nginx
 
   rules:
     - http:
         paths:
+
           - path: /
             pathType: Prefix
             backend:
               service:
                 name: active-service
+                port:
+                  number: 80
+
+          - path: /preview
+            pathType: Prefix
+            backend:
+              service:
+                name: preview-service
                 port:
                   number: 80

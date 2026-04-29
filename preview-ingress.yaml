@@ -1,8 +1,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: bluegreen-ingress
+  name: preview-ingress
   namespace: bluegreen-demo
+
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
@@ -14,16 +15,6 @@ spec:
     - http:
         paths:
 
-          # Active Service
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: active-service
-                port:
-                  number: 80
-
-          # Preview Service
           - path: /preview(/|$)(.*)
             pathType: ImplementationSpecific
             backend:

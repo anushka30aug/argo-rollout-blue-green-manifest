@@ -3,11 +3,13 @@ kind: Rollout
 metadata:
   name: bluegreen-rollout
   namespace: bluegreen-demo
+  annotations:
+    notifications.argoproj.io/subscribe.on-degraded.email.gmail: anushkas@cognam.com
 spec:
   replicas: 2
 
   revisionHistoryLimit: 2
-
+  progressDeadlineSeconds: 120
   selector:
     matchLabels:
       app: bluegreen-app
@@ -16,8 +18,7 @@ spec:
     metadata:
       labels:
         app: bluegreen-app
-      annotations:
-        notifications.argoproj.io/subscribe.on-degraded.email.gmail: anushkas@cognam.com
+
     spec:
       containers:
         - name: node-app

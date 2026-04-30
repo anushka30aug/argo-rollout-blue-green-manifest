@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+
+metadata:
+  name: bluegreen-monitor
+  namespace: monitoring
+
+spec:
+  selector:
+    matchLabels:
+      app: bluegreen-app
+
+  namespaceSelector:
+    matchNames:
+      - bluegreen-demo
+
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s

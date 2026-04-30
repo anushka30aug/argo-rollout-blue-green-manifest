@@ -1,15 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
+
 metadata:
   name: bluegreen-rollout
   namespace: bluegreen-demo
+
   annotations:
     notifications.argoproj.io/subscribe.on-degraded.email.gmail: anushkas@cognam.com
+
 spec:
   replicas: 2
 
-  revisionHistoryLimit: 2
-  progressDeadlineSeconds: 120
+  revisionHistoryLimit: 3
+
+  progressDeadlineSeconds: 180
+
   selector:
     matchLabels:
       app: bluegreen-app
@@ -20,9 +25,25 @@ spec:
         app: bluegreen-app
 
     spec:
+
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - bluegreen-app
+                topologyKey: kubernetes.io/hostname
+
       containers:
         - name: node-app
+
           image: anushkashukla003/node-app:0fadff7b2c92496c4be473c3c639f330c24fef9b
+
           ports:
             - containerPort: 3000
 
@@ -32,10 +53,44 @@ spec:
               port: 3000
             initialDelaySeconds: 5
             periodSeconds: 5
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
 
   strategy:
     blueGreen:
+
       activeService: active-service
+
       previewService: preview-service
 
-      autoPromotionEnabled: false
+      autoPromotionSeconds: 60
+
+      scaleDownDelaySeconds: 1800
+
+      abortScaleDownDelaySeconds: 300
+
+      previewReplicaCount: 2
+
+      prePromotionAnalysis:
+        templates:
+          - templateName: prometheus-success-rate
+
+      postPromotionAnalysis:
+        templates:
+          - templateName: prometheus-success-rate

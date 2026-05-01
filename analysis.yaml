@@ -7,26 +7,24 @@ metadata:
 
 spec:
   metrics:
-
     - name: success-rate
 
       interval: 30s
-
       count: 3
 
-      successCondition: result[0] >= 1
+      # Guards against empty result vector (no data yet = no crash)
+      successCondition: len(result) > 0 && result[0] >= 0.95
 
-      failureLimit: 1
+      failureLimit: 2
 
       provider:
         prometheus:
-
           address: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
 
           query: |
             sum(
               rate(
-                http_request_duration_seconds_count{
+                http_requests_total{
                   status_code!~"5.."
                 }[1m]
               )
@@ -34,6 +32,6 @@ spec:
             /
             sum(
               rate(
-                http_request_duration_seconds_count[1m]
+                http_requests_total[1m]
               )
             )

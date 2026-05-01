@@ -42,7 +42,7 @@ spec:
       containers:
         - name: node-app
 
-          image: anushkashukla003/node-app:869464d8aeffdb0feb60901cad0b982d8f0ef2a6
+          image: anushkashukla003/node-app:f6e08ec2a4797da39a02af47979565079e2f8881
 
           ports:
             - containerPort: 3000

@@ -14,7 +14,7 @@ spec:
 
       count: 3
 
-      successCondition: result[0] >= 0.95
+      successCondition: result[0] >= 1
 
       failureLimit: 1
 

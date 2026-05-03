@@ -12,8 +12,7 @@ spec:
       interval: 30s
       count: 3
 
-      # Guards against empty result vector (no data yet = no crash)
-      successCondition: len(result) > 0 && result[0] >= 0.95
+      successCondition: result[0] >= 0.95
 
       failureLimit: 2
 
@@ -22,16 +21,8 @@ spec:
           address: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
 
           query: |
-            sum(
-              rate(
-                http_requests_total{
-                  status_code!~"5.."
-                }[1m]
-              )
-            )
-            /
-            sum(
-              rate(
-                http_requests_total[1m]
-              )
-            )
+            (
+              sum(rate(http_requests_total{status_code!~"5.."}[2m]))
+              /
+              sum(rate(http_requests_total[2m]))
+            ) or vector(1)
